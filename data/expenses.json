@@ -1,0 +1,38 @@
+[
+  {
+    "_id": "1",
+    "purpose": "Food in the day",
+    "category": "Food",
+    "paidAt": "2023-05-30T00:00:00z"
+  },
+  {
+    "_id": "2",
+    "purpose": "The coursebook of database design",
+    "category": "Study",
+    "paidAt": "2023-05-30T00:00:00z"
+  },
+  {
+    "_id": "3",
+    "purpose": "Go to the movie theater with friends",
+    "category": "Entertainment",
+    "paidAt": "2023-05-30T00:00:00z"
+  },
+  {
+    "_id": "4",
+    "purpose": "Parking fee",
+    "category": "Transportation",
+    "paidAt": "2023-05-30T00:00:00z"
+  },
+  {
+    "_id": "5",
+    "purpose": "Fill up the task with gas",
+    "category": "Transportation",
+    "paidAt": "2023-05-30T00:00:00z"
+  },
+  {
+    "id": "6",
+    "purpose": "Pay electronic and water bill.",
+    "category": "Subsistence",
+    "paidAt": "2023-05-30T00:00:00z"
+  }
+]

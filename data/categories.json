@@ -1,0 +1,8 @@
+[
+  {"_id": "1", "name": "Food", "icon": "food"},
+  {"_id": "2", "name": "Transportation", "icon": "motorbike"},
+  {"_id": "3", "name": "Subsistence", "icon": "newspaper-variant-outline"},
+  {"_id": "4", "name": "Entertainment", "icon": "human-female-female"},
+  {"_id": "5", "name": "Study", "icon": "school"},
+  {"id": "6", "name": "Shopping", "icon": "shopping"}
+]
