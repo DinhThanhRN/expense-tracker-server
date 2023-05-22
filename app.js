@@ -1,16 +1,21 @@
-const express = require('express');
-const morgan = require('morgan');
-const rateLimit = require('express-rate-limit');
-const helmet = require('helmet');
-const mongoSanitize = require('express-mongo-sanitize');
-const xss = require('xss-clean');
-const hpp = require('hpp');
+const express = require("express");
+const morgan = require("morgan");
+const rateLimit = require("express-rate-limit");
+const helmet = require("helmet");
+const mongoSanitize = require("express-mongo-sanitize");
+const xss = require("xss-clean");
+const hpp = require("hpp");
 
-const userRouter = require('./routes/userRouter');
-const expenseRouter = require('./routes/expenseRouter');
-const categoryRouter = require('./routes/categoryRouter');
-const globalErrorHandler = require('./controllers/errorController');
-const AppError = require('./utils/AppError');
+const userRouter = require("./routes/userRouter");
+const expenseRouter = require("./routes/expenseRouter");
+const categoryRouter = require("./routes/categoryRouter");
+const globalErrorHandler = require("./controllers/errorController");
+const AppError = require("./utils/AppError");
+const {
+  uploadImage,
+  downloadImage,
+  downloadImageURL,
+} = require("./utils/uploadImage");
 
 const app = express();
 
@@ -19,20 +24,22 @@ const app = express();
 app.use(helmet());
 
 // Development logging
-if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
 }
+
+// console.log(downloadImageURL("default-avatar"));
 
 // Limit requests from same API
 const limiter = rateLimit({
   max: 100,
   windowMs: 60 * 60 * 1000,
-  message: 'Too many request from this id. Please try again in an hour!',
+  message: "Too many request from this id. Please try again in an hour!",
 });
-app.use('/api', limiter);
+app.use("/api", limiter);
 
 // Body parser, reading data from body into req.body
-app.use(express.json({limit: '10kb'}));
+app.use(express.json({ limit: "10kb" }));
 
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
@@ -43,8 +50,8 @@ app.use(xss());
 // Prevent parameter pollution
 app.use(
   hpp({
-    whitelist: ['price'],
-  }),
+    whitelist: ["price"],
+  })
 );
 
 // Test middlerware
@@ -53,11 +60,11 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/api/v1/users', userRouter);
-app.use('/api/v1/expenses', expenseRouter);
-app.use('/api/v1/categories', categoryRouter);
+app.use("/api/v1/users", userRouter);
+app.use("/api/v1/expenses", expenseRouter);
+app.use("/api/v1/categories", categoryRouter);
 // app.use('/api/v1/test', testRouter);
-app.all('*', (req, res, next) => {
+app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on the server`, 404));
 });
 app.use(globalErrorHandler);
