@@ -34,15 +34,12 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     );
   // Upload avatar to Cloudinary
   const avatarURL = req.body.avatar;
-  // console.log("avatarURL: ", avatarURL);
   if (avatarURL) {
     const url = await uploadImage(avatarURL, req.body.saveAs);
-    // console.log("url: ", url);
     req.body.avatar = url;
   } else {
     req.body.avatar = downloadImageURL("default-avatar");
   }
-  // console.log("req.body.avatar: ", req.body.avatar);
 
   // 3) Filtered out unwanted fields names that are not allow to be updated.
   const filteredBody = filterObj(req.body, "name", "email", "avatar");

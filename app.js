@@ -11,14 +11,6 @@ const expenseRouter = require("./routes/expenseRouter");
 const categoryRouter = require("./routes/categoryRouter");
 const globalErrorHandler = require("./controllers/errorController");
 const AppError = require("./utils/AppError");
-<<<<<<< HEAD
-=======
-const {
-  uploadImage,
-  downloadImage,
-  downloadImageURL,
-} = require("./utils/uploadImage");
->>>>>>> main
 
 const app = express();
 
@@ -39,11 +31,7 @@ const limiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   message: "Too many request from this id. Please try again in an hour!",
 });
-<<<<<<< HEAD
-// app.use('/api', limiter);
-=======
 app.use("/api", limiter);
->>>>>>> main
 
 // Body parser, reading data from body into req.body
 app.use(express.json({ limit: "10kb" }));
