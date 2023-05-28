@@ -60,34 +60,57 @@ exports.deleteSpending = catchAsync(async (req, res, next) => {
 });
 
 exports.getStatistic = catchAsync(async (req, res, next) => {
-  const today = new Date();
+  const month = new Date().getMonth() + 1;
+  const year = new Date().getFullYear();
+
+  const num = req.query.num ?? 4;
+  delete req.query["num"];
 
   const userID = req.params.userID;
-  const month = req.query.month ?? today.getMonth() + 1;
-  const year = req.query.year ?? today.getFullYear();
 
-  const result = await Spending.aggregate([
-    {
-      $match: {
-        userID,
+  const queryObj =
+    month + 1 - num > 0
+      ? {
+          userID,
+          $expr: {
+            $and: [
+              { $lte: ["$month", month] },
+              { $gt: ["$month", month - num] },
+              { $eq: ["$year", year] },
+            ],
+          },
+        }
+      : {
+          userID,
+          $expr: {
+            $or: [
+              {
+                $and: [{ $lte: ["$month", month] }, { $eq: ["$year", year] }],
+              },
+              {
+                $and: [
+                  { $gt: ["$month", 12 - num + month] },
+                  { $eq: ["$year", year - 1] },
+                ],
+              },
+            ],
+          },
+        };
 
-        $expr: {
-          $and: [
-            { $gt: ["$month", month * 1 - 4] },
-            { $lte: ["$month", month * 1] },
-          ],
-        },
+  const features = new APIFeatures(
+    Spending.find(queryObj).select("-__v"),
+    req.query
+  )
+    .sort()
+    .filter()
+    .limitFields();
+  const spendings = await features.query;
 
-        year: year * 1,
-      },
-    },
-  ]);
-
-  if (!result) return next(new AppError("Statistic fail!", 404));
+  if (!spendings) return next(new AppError("Statistic fail!", 404));
 
   res.status(200).json({
     status: "success",
-    result: result.length,
-    data: result,
+    result: spendings.length,
+    spendings,
   });
 });
