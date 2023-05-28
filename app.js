@@ -9,6 +9,7 @@ const hpp = require("hpp");
 const userRouter = require("./routes/userRouter");
 const expenseRouter = require("./routes/expenseRouter");
 const categoryRouter = require("./routes/categoryRouter");
+const spendingRouter = require("./routes/spendingRouter");
 const globalErrorHandler = require("./controllers/errorController");
 const AppError = require("./utils/AppError");
 
@@ -22,8 +23,6 @@ app.use(helmet());
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
-
-// console.log(downloadImageURL("default-avatar"));
 
 // Limit requests from same API
 const limiter = rateLimit({
@@ -58,7 +57,7 @@ app.use((req, res, next) => {
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/expenses", expenseRouter);
 app.use("/api/v1/categories", categoryRouter);
-// app.use('/api/v1/test', testRouter);
+app.use("/api/v1/spendings", spendingRouter);
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on the server`, 404));
 });

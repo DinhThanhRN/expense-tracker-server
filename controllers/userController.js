@@ -2,7 +2,7 @@ const User = require("../models/userModel");
 
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
-const { downloadImageURL, uploadImage } = require("../utils/uploadImage");
+const { formatDate } = require("../utils/formater");
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -32,17 +32,36 @@ exports.updateMe = catchAsync(async (req, res, next) => {
         400
       )
     );
-  // Upload avatar to Cloudinary
-  // const avatarURL = req.body.avatar;
-  // if (avatarURL) {
-  //   const url = await uploadImage(avatarURL, req.body.saveAs);
-  //   req.body.avatar = url;
-  // } else {
-  //   req.body.avatar = downloadImageURL("default-avatar");
-  // }
 
-  // 3) Filtered out unwanted fields names that are not allow to be updated.
-  const filteredBody = filterObj(req.body, "name", "email", "avatar");
+  // if (req.body.spending) {
+  //   const { spending } = await User.findById(req.user.id);
+  //   const isMonthExist = !!req.body.spending.month;
+  //   const month = isMonthExist
+  //     ? formatDate(new Date(req.body.spending.month))
+  //     : formatDate(new Date());
+
+  //   req.body.spending.month = month;
+
+  //   const index = spending.findIndex(
+  //     (item) => item.month.toISOString() === month
+  //   );
+  //   if (index === -1) {
+  //     spending.push(req.body.spending);
+  //   } else {
+  //     spending[index] = req.body.spending;
+  //   }
+  //   req.body.spending = spending;
+  // }
+  // console.log(req.body);
+
+  // 2) Filtered out unwanted fields names that are not allow to be updated.
+  const filteredBody = filterObj(
+    req.body,
+    "name",
+    "email",
+    "avatar"
+    // "spending"
+  );
 
   // 4) Update user document
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {

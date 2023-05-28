@@ -1,4 +1,6 @@
 const Expense = require("../models/expenseModel");
+const Spending = require("../models/spendingModel");
+const AppError = require("../utils/AppError");
 const APIFeatures = require("../utils/apiFeatures");
 const catchAsync = require("../utils/catchAsync");
 
@@ -35,6 +37,13 @@ exports.createExpense = catchAsync(async (req, res) => {
 
   const newExpense = await Expense.create({ userID, ...req.body });
 
+  const spending = await Spending.findOne({
+    userID,
+    month: newExpense.paidAt.getMonth() + 1,
+    year: newExpense.paidAt.getFullYear(),
+  });
+  await spending.save();
+
   res.status(200).json({
     status: "success",
     requestTime: req.requestTime,
@@ -46,8 +55,15 @@ exports.updateExpense = catchAsync(async (req, res, next) => {
   const expense = await Expense.findByIdAndUpdate(req.params.id, req.body, {
     runValidators: true,
     new: true,
-  });
+  }).select("+userID");
   if (!expense) return next(new AppError("No expense found that ID", 404));
+
+  const spending = await Spending.findOne({
+    userID: expense.userID,
+    month: expense.paidAt.getMonth() + 1,
+    year: expense.paidAt.getFullYear(),
+  }).select("+userID");
+  await spending.save();
 
   res.status(200).json({
     status: "success",
@@ -61,6 +77,14 @@ exports.updateExpense = catchAsync(async (req, res, next) => {
 exports.deleteExpense = catchAsync(async (req, res, next) => {
   const expense = await Expense.findByIdAndDelete(req.params.id);
   if (!expense) return next(new AppError("No expense found that ID", 404));
+
+  const spending = await Spending.findOne({
+    userID: expense.userID,
+    month: expense.paidAt.getMonth() + 1,
+    year: expense.paidAt.getFullYear(),
+  });
+  // spending.expense -= expense.price;
+  await spending.save();
 
   res.status(200).json({
     status: "success",

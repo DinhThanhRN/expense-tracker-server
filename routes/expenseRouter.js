@@ -16,7 +16,7 @@ router
   .get(authController.protect, expenseController.stastiticExpenses);
 
 router
-  .route("/:id")
+  .route("/expense/:id")
   .get(authController.protect, expenseController.getExpense)
   .patch(authController.protect, expenseController.updateExpense)
   .delete(authController.protect, expenseController.deleteExpense);
