@@ -6,7 +6,23 @@ const catchAsync = require("../utils/catchAsync");
 
 exports.getAllExpenses = catchAsync(async (req, res) => {
   const userID = req.params.userID;
-  const features = new APIFeatures(Expense.find({ userID }), req.query)
+  const month = req.query.month ?? new Date().getMonth() + 1;
+  delete req.query.month;
+  const year = req.query.year ?? new Date().getFullYear();
+  delete req.query.year;
+
+  const features = new APIFeatures(
+    Expense.find({
+      userID,
+      $expr: {
+        $and: [
+          { $eq: [{ $month: "$paidAt" }, month * 1] },
+          { $eq: [{ $year: "$paidAt" }, year * 1] },
+        ],
+      },
+    }),
+    req.query
+  )
     .filter()
     .sort()
     .limitFields();
