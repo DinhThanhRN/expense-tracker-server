@@ -95,7 +95,19 @@ exports.deleteExpense = catchAsync(async (req, res, next) => {
 
 exports.stastiticExpenses = catchAsync(async (req, res, next) => {
   const userID = req.params.userID;
-  const expenses = await Expense.find({ userID });
+  const month = req.query.month ?? new Date().getMonth() + 1;
+  const year = req.query.year ?? new Date().getFullYear();
+
+  console.log(month, year);
+  const expenses = await Expense.find({
+    userID,
+    $expr: {
+      $and: [
+        { $eq: [{ $month: "$paidAt" }, month * 1] },
+        { $eq: [{ $year: "$paidAt" }, year * 1] },
+      ],
+    },
+  });
   if (!expenses) return next(new AppError("No expenses in server!", 404));
 
   // Accumalate spending of all expenses that have the same category
