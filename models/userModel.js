@@ -4,7 +4,7 @@ const slugify = require("slugify");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 
-const { spendingScheme } = require("./spendingModel");
+const notificationSchema = require("./notificationModel");
 
 const userScheme = new mongoose.Schema({
   name: {
@@ -12,11 +12,6 @@ const userScheme = new mongoose.Schema({
     required: [true, "User must have a name"],
     unique: true,
     trim: true,
-    // maxLength: [40, 'A user name must have less or equal than 40 characters'],
-    // minLength: [
-    //   10,
-    //   'A user name must have greater or equal than 10 characters',
-    // ],
   },
   slug: String,
   email: {
@@ -51,20 +46,26 @@ const userScheme = new mongoose.Schema({
     default: Date.now(),
     select: false,
   },
-  // spending: {
-  //   type: [spendingScheme],
-  //   default: [],
-  // },
   avatar: {
     type: String,
     default: "",
   },
+  notifications: {
+    type: [notificationSchema],
+    select: false,
+  },
+
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
   active: {
     type: Boolean,
     default: true,
+    select: false,
+  },
+  deviceTokens: {
+    type: [String],
+    default: 0,
     select: false,
   },
 });

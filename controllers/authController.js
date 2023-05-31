@@ -57,12 +57,44 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   // Check if user exists and password is correct
-  const user = await User.findOne({ email }).select("+password");
+  const user = await User.findOne({ email })
+    .select("+password")
+    .select("+deviceTokens");
   if (!user || !(await user.correctPassword(password, user.password)))
     return next(new AppError("Incorrect email or password", 401));
 
+  // Store deviceToken to database for notification
+  if (
+    req.body?.deviceToken &&
+    !user.deviceTokens.includes(req.body.deviceToken)
+  ) {
+    user.deviceTokens.push(req.body.deviceToken);
+    await user.save();
+  }
+
   // Send token to client
   createAndSendToken(user, 200, res);
+});
+
+exports.logout = catchAsync(async (req, res, next) => {
+  const deviceToken = req.body?.deviceToken;
+  if (!deviceToken)
+    return next(
+      new AppError("You must provide token to completely logout!", 404)
+    );
+
+  const user = await User.findById(req.params.id).select("+deviceTokens");
+  if (!user) return next(new AppError("Do not find user!", 404));
+
+  const deletedTokenIndex = user.deviceTokens.indexOf(deviceToken);
+  if (deletedTokenIndex === -1)
+    return next(new AppError("Not found device token", 404));
+  user.deviceTokens.splice(deletedTokenIndex, 1);
+  await user.save();
+
+  res.status(200).json({
+    status: "success",
+  });
 });
 
 exports.protect = catchAsync(async (req, res, next) => {

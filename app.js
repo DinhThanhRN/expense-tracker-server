@@ -5,13 +5,16 @@ const helmet = require("helmet");
 const mongoSanitize = require("express-mongo-sanitize");
 const xss = require("xss-clean");
 const hpp = require("hpp");
+const cron = require("node-cron");
 
 const userRouter = require("./routes/userRouter");
 const expenseRouter = require("./routes/expenseRouter");
 const categoryRouter = require("./routes/categoryRouter");
 const spendingRouter = require("./routes/spendingRouter");
+const notificationRouter = require("./routes/notificationRouter");
 const globalErrorHandler = require("./controllers/errorController");
 const AppError = require("./utils/AppError");
+const { sendMonthlyReport } = require("./utils/notification");
 
 const app = express();
 
@@ -48,6 +51,11 @@ app.use(
   })
 );
 
+// Schedule time to send monthly report.
+cron.schedule("0 0 7 * *", () => {
+  sendMonthlyReport();
+});
+
 // Test middlerware
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
@@ -58,6 +66,7 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/expenses", expenseRouter);
 app.use("/api/v1/categories", categoryRouter);
 app.use("/api/v1/spendings", spendingRouter);
+app.use("/api/v1/notifications", notificationRouter);
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on the server`, 404));
 });

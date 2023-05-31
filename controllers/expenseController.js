@@ -114,7 +114,6 @@ exports.stastiticExpenses = catchAsync(async (req, res, next) => {
   const month = req.query.month ?? new Date().getMonth() + 1;
   const year = req.query.year ?? new Date().getFullYear();
 
-  console.log(month, year);
   const expenses = await Expense.find({
     userID,
     $expr: {
