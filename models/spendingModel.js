@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const Expense = require("./expenseModel");
 
 const spendingSchema = new mongoose.Schema({
   userID: {
@@ -12,6 +11,7 @@ const spendingSchema = new mongoose.Schema({
   },
   expense: {
     type: Number,
+    default: 0,
   },
   month: {
     type: Number,
@@ -37,16 +37,18 @@ const spendingSchema = new mongoose.Schema({
 });
 
 // Use a pre hook to calculate the saving before saving the document
-spendingSchema.pre("save", async function () {
-  const expenses = await Expense.find({
+spendingSchema.pre("save", async function (next) {
+  const expenses = await mongoose.model("Expense").find({
     paidAt: {
       $gte: new Date(this.year, this.month - 1, 1), // First day of the month
-      $lt: new Date(this.year, this.month, 1), // First day of the next month
+      $lte: new Date(this.year, this.month, 1), // First day of the next month
     },
+    userID: this.userID,
   });
-
-  const total = expenses.reduce((sum, expense) => sum + expense.price, 0);
-  this.expense = total;
+  if (expenses) {
+    const total = expenses.reduce((sum, expense) => sum + expense.price, 0);
+    this.expense = total;
+  }
 });
 
 spendingSchema.virtual("saving").get(function () {

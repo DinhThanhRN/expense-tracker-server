@@ -98,8 +98,7 @@ exports.deleteExpense = catchAsync(async (req, res, next) => {
     userID: expense.userID,
     month: expense.paidAt.getMonth() + 1,
     year: expense.paidAt.getFullYear(),
-  });
-  // spending.expense -= expense.price;
+  }).select("+userID");
   await spending.save();
 
   res.status(200).json({

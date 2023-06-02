@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const Spending = require("./spendingModel");
+const AppError = require("../utils/AppError");
 
 const expenseScheme = new mongoose.Schema({
   userID: {
@@ -25,19 +26,22 @@ const expenseScheme = new mongoose.Schema({
   },
 });
 
-// expenseScheme.pre("save", async function (next) {
-//   const spending = await mongoose.model("Spending").findOne({
-//     month: this.paidAt.getMonth() + 1,
-//     year: this.paidAt.getFullYear(),
-//     userID: this.userID,
-//   });
-//   console.log(spending);
-//   if (spending) {
-//     spending.expense += this.price;
-//     await spending.save();
-//   }
-//   next();
-// });
+expenseScheme.post("save", async function (next) {
+  const spending = await mongoose.model("Spending").findOne({
+    month: this.paidAt.getMonth() + 1,
+    year: this.paidAt.getFullYear(),
+    userID: this.userID,
+  });
+
+  if (!spending) {
+    await Spending.create({
+      userID: this.userID,
+      expense: this.price,
+      month: this.paidAt.getMonth() + 1,
+      year: this.paidAt.getFullYear(),
+    });
+  }
+});
 
 const Expense = mongoose.model("Expense", expenseScheme);
 

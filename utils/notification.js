@@ -1,6 +1,7 @@
 const { getMessaging } = require("firebase-admin/messaging");
 const User = require("../models/userModel");
 const Spending = require("../models/spendingModel");
+const AppError = require("./AppError");
 
 exports.sendMonthlyReport = async () => {
   const users = await User.find()
@@ -17,6 +18,7 @@ exports.sendMonthlyReport = async () => {
       month: lastMonth.getMonth() + 1,
       year: lastMonth.getFullYear(),
     });
+    if (!spending) return;
 
     if (item.deviceTokens.length) {
       const message = {

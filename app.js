@@ -52,7 +52,7 @@ app.use(
 );
 
 // Schedule time to send monthly report.
-cron.schedule("0 0 7 * *", () => {
+cron.schedule("* * * * *", () => {
   sendMonthlyReport();
 });
 
