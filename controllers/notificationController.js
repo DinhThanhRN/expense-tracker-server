@@ -5,6 +5,7 @@ const catchAsync = require("../utils/catchAsync");
 const User = require("../models/userModel");
 const Spending = require("../models/spendingModel");
 const AppError = require("../utils/AppError");
+const { ObjectId } = require("mongodb");
 
 const credential = {
   type: process.env.ADMIN_TYPE,
@@ -39,6 +40,7 @@ exports.sendMessage = catchAsync(async (req, res, next) => {
   });
 
   user.notifications.push(req.body);
+
   await user.save();
 
   res.status(200).json({
@@ -61,19 +63,30 @@ exports.getAllNotifications = catchAsync(async (req, res, next) => {
   });
 });
 
-// exports.deleteNotification = catchAsync(async (req, res, next) => {
-//   try {
-//     const user = await User.updateMany(
-//       {},
-//       { $pull: { notifications: { id: req.params.id } } }
-//     );
-//   } catch (err) {
-//     console.log(err);
-//   }
-//   res.status(200).json({
-//     status: "success",
-//   });
-// });
+exports.deleteNotification = catchAsync(async (req, res, next) => {
+  const userID = new ObjectId(req.params.id);
+  const notificationId = ObjectId(req.query.id);
+  try {
+    // const user = await User.updateMany(
+    //   {},
+    //   {
+    //     $pull: { notifications: { _id: notificationId } },
+    //   }
+    // ).select("notifications");
+    const user = await User.find({ _id: userID });
+    console.log(userID);
+    // res.status(200).json({
+    //   status: "success",
+    //   data: user,
+    // });
+  } catch (err) {
+    console.log(err);
+  }
+  res.status(200).json({
+    status: "fail",
+    message: "Delete notification fail",
+  });
+});
 
 exports.sendMonthlyMessage = catchAsync(async (req, res, next) => {
   const users = await User.find()

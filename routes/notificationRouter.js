@@ -13,8 +13,8 @@ router
   .post(authController.protect, notificationController.sendMessage)
   .get(authController.protect, notificationController.getAllNotifications);
 
-// router
-//   .route("/:id")
-//   .delete(authController.protect, notificationController.deleteNotification);
+router
+  .route("/:id")
+  .delete(authController.protect, notificationController.deleteNotification);
 
 module.exports = router;
